@@ -10,37 +10,26 @@
           <v-toolbar-title @click="directBackHome">Todo List</v-toolbar-title>
 
           <v-spacer></v-spacer>
-
+          <v-toolbar-items v-if="!signedIn()">
           <v-btn @click="directToLogin" text >
            Login
           </v-btn>
 
-          <v-btn text>
-            register
+          <v-btn @click="directToSignup" text>
+            Signup
           </v-btn>
-        <!--   <v-toolbar-items v-if="isLoggedIn">
-            <v-btn text>Add todo</v-btn>
-            <b-btn text @click="logout">Signout</b-btn>
-          </v-toolbar-items> -->
+
+        </v-toolbar-items>
+
+          <v-toolbar-items v-if="signedIn()">
+            <v-btn @click="viewTodo" text>Add todo</v-btn>
+            <v-btn @click="signOut" text>Signout</v-btn>
+          </v-toolbar-items>
           <v-menu
             left
             bottom
           >
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on">
-                <v-icon>mdi-dots-vertical</v-icon>
-              </v-btn>
-            </template>
 
-            <v-list>
-              <v-list-item
-                v-for="n in 5"
-                :key="n"
-                @click="() => {}"
-              >
-                <v-list-item-title>Option {{ n }}</v-list-item-title>
-              </v-list-item>
-            </v-list>
           </v-menu>
         </v-app-bar>
       </div>
@@ -55,13 +44,37 @@ export default {
 
   },
   methods: {
+    setError (error, text) {
+      this.error = (error.response && error.response.data && error.response.data.error) || text
+    },
+    signedIn () {
+      return localStorage.signedIn
+    },
+    signOut () {
+      this.$http.secured.delete('/signin')
+        .then(response => {
+          delete localStorage.csrf
+          delete localStorage.signedIn
+          this.$router.replace('/')
+        })
+        .catch(error => this.setError(error, 'failed to sign out'))
+    },
     directBackHome () {
       console.log('asdasd')
       this.$router.push('/')
     },
     directToLogin () {
-      this.$router.push('/login')
+      this.$router.replace('/login')
+    },
+    directToSignup () {
+      this.$router.replace('/signup')
+    },
+    viewTodo () {
+      this.$router.replace('/todo')
     }
+  },
+  created () {
+    this.signedIn()
   }
 }
 </script>

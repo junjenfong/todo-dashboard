@@ -21,7 +21,7 @@
               ></v-text-field>
               <v-text-field
                 id="password_confirmation"
-                label="password_confirmation"
+                label="Password Confirmation"
                 name="password_confirmation"
                 type="password"
                 v-model="password_confirmation"
@@ -30,7 +30,7 @@
           </v-card-text>
           <v-card-actions>
             <div class="flex-grow-1"></div>
-            <v-btn color="primary" @click="validateLogin">Signup</v-btn>
+            <v-btn color="primary" @click="signUp">Signup</v-btn>
             <v-btn color="error" @click="resetForm" class="reset">Reset Form</v-btn>
           </v-card-actions>
         </v-card>
@@ -56,8 +56,9 @@ export default {
     resetForm () {
       this.email = ''
       this.password = ''
+      this.password_confirmation = ''
     },
-    validateLogin () {
+    signUp () {
       const userDetails = {
         email: this.email,
         password: this.password,
@@ -65,21 +66,21 @@ export default {
       }
       console.log(this.$http)
       this.$http.plain.post('/signup', userDetails)
-        .then(response => this.signinSuccessful(response))
-        .catch(error => this.signinFailed(error))
+        .then(response => this.signupSuccessful(response))
+        .catch(error => this.signupFailed(error))
     },
-    signinSuccessful (response) {
+    signupSuccessful (response) {
       console.log(response)
       if (!response.data.csrf) {
-        this.signinFailed(response)
+        this.signupFailed(response)
         return
       }
       localStorage.csrf = response.data.csrf
       localStorage.signedIn = true
       this.error = ''
-      this.$router.replace('/records')
+      this.$router.go('/')
     },
-    signinFailed (error) {
+    signupFailed (error) {
       console.log(error)
       this.error = (error.response && error.response.data && error.response.data.error) || ''
       delete localStorage.csrf
@@ -87,12 +88,12 @@ export default {
     },
     checkSignedIn () {
       if (localStorage.signedIn) {
-        this.$router.replace('/records')
+        this.$router.replace('/')
       }
     }
   },
   created () {
-    this.validateLogin()
+    this.checkSignedIn()
   }
 }
 </script>

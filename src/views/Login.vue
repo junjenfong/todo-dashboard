@@ -8,10 +8,9 @@
             <div class="flex-grow-1"></div>
             <v-tooltip bottom></v-tooltip>
           </v-toolbar>
+          <v-form @submit.prevent="signIn">
           <v-card-text>
-            <v-form>
               <v-text-field label="Login" name="login" type="text" v-model="email"></v-text-field>
-
               <v-text-field
                 id="password"
                 label="Password"
@@ -19,13 +18,13 @@
                 type="password"
                 v-model="password"
               ></v-text-field>
-            </v-form>
           </v-card-text>
           <v-card-actions>
             <div class="flex-grow-1"></div>
-            <v-btn color="primary" @click="validateLogin">Login</v-btn>
+            <v-btn color="primary" type="submit">Login</v-btn>
             <v-btn color="error" @click="resetForm" class="reset">Reset Form</v-btn>
           </v-card-actions>
+        </v-form>
         </v-card>
       </v-col>
     </v-row>
@@ -49,12 +48,12 @@ export default {
       this.email = ''
       this.password = ''
     },
-    validateLogin () {
+    signIn () {
+      console.log('click le')
       const userDetails = {
         email: this.email,
         password: this.password
       }
-      console.log(this.$http)
       this.$http.plain.post('/signin', userDetails)
         .then(response => this.signinSuccessful(response))
         .catch(error => this.signinFailed(error))
@@ -68,7 +67,7 @@ export default {
       localStorage.csrf = response.data.csrf
       localStorage.signedIn = true
       this.error = ''
-      this.$router.replace('/records')
+      this.$router.go('/')
     },
     signinFailed (error) {
       console.log(error)
@@ -78,12 +77,13 @@ export default {
     },
     checkSignedIn () {
       if (localStorage.signedIn) {
-        this.$router.replace('/records')
+        this.$router.replace('/')
       }
     }
   },
   created () {
-    this.validateLogin()
+    this.checkSignedIn()
+    console.log('ok ah')
   }
 }
 </script>
